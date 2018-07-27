@@ -19,12 +19,12 @@ atm = Atm.new(config)
 
 loop do
   if atm.user_logged?
-    puts atm_menu
-    puts atm.dispatch(gets)
+    print atm_menu
+    print atm.dispatch(gets)
   else
-    puts atm_asks_account
+    print atm_asks_account
     account = gets.to_i
-    puts atm_asks_password
+    print atm_asks_password
     passw = gets
     atm.login(account, passw)
   end

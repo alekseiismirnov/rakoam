@@ -18,13 +18,14 @@ require File.join(root, %w[lib atm])
 atm = Atm.new(config)
 
 loop do
+  print atm.user_logged?
   if atm.user_logged?
-    p atm_menu
-    p atm.dispatch(gets)
+    puts atm_menu
+    puts atm.dispatch(gets)
   else
-    p atm_asks_account
+    puts atm_asks_account
     account = gets
-    p atm_asks_password
+    puts atm_asks_password
     passw = gets
     atm.login(account, passw)
   end

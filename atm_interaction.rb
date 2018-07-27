@@ -24,7 +24,7 @@ loop do
     puts atm.dispatch(gets)
   else
     puts atm_asks_account
-    account = gets
+    account = gets.to_i
     puts atm_asks_password
     passw = gets
     atm.login(account, passw)

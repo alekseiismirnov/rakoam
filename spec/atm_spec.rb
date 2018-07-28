@@ -55,14 +55,17 @@ describe '#dispatch' do
   end
 
   describe '3 withdraw' do
-    it 'when insufficient fonds' do
+    it 'insufficient fonds' do
       expect(@atm.withdraw(1_000_000)).to eq('ERROR: INSUFFICIENT FUNDS!! PLEASE ENTER A DIFFERENT AMOUNT.')
     end
-    it 'when not enough cash' do
+    it 'not enough cash' do
       expect(@atm.withdraw(5_000)).to eq('ERROR: THE MAXIMUM AMOUNT AVAILABLE IN THIS ATM IS ₴337.')
     end
+    it 'no bills avaiable' do
+      expect(@atm.withdraw(329)).to eq('ERROR: THE AMOUNT YOU REQUESTED CANNOT BE COMPOSED FROM BILLS AVAILABLE IN THIS ATM.')
+    end
     it 'when enough' do
-      expect(@atm.withdraw(23)).to eq('Your Current Balance is ₴5278')
-    end 
+      expect(@atm.withdraw(320)).to eq('Your Current Balance is ₴4981')
+    end
   end
 end

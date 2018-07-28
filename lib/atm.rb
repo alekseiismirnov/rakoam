@@ -7,16 +7,16 @@ class Atm
   @balance_message = 'Your Current Balance is ₴%<balance>i'
   @insufficient_funds = 'ERROR: INSUFFICIENT FUNDS!! PLEASE ENTER A DIFFERENT AMOUNT.'
   @not_enough_cash = 'ERROR: THE MAXIMUM AMOUNT AVAILABLE IN THIS ATM IS ₴%<cash>i.'
-
+  @no_such_bills = 'ERROR: THE AMOUNT YOU REQUESTED CANNOT BE COMPOSED FROM BILLS AVAILABLE IN THIS ATM.'
   class << self
     attr_reader :user_welcome, :login_fail, :withdraw_prompt, :balance_message
-    attr_reader :insufficient_funds, :not_enough_cash
+    attr_reader :insufficient_funds, :not_enough_cash, :no_such_bills
   end
 
   def initialize(config)
     raise 'ATM config is nil' if config.nil?
     @config = config.clone
-    @banknotes = Hash.new(config['banknotes'])
+    @banknotes = config['banknotes'].flat_map { |nom, n| Array.new(n, nom) }
   end
 
   def login(number, pass)
@@ -54,8 +54,14 @@ class Atm
     elsif amount > cash
       format(self.class.not_enough_cash, cash: cash)
     else
-      balance_set(balance_get - amount)
-      balance
+      givaway_bills = pick_banknotes(amount)
+      if givaway_bills.nil?
+         self.class.no_such_bills
+      else
+        @banknotes -= givaway_bills
+        balance_set(balance_get - amount)
+        balance
+      end
     end
   end
 
@@ -81,19 +87,13 @@ class Atm
   end
 
   def cash
-    @config['banknotes'].inject(0) { |sum, notes| sum + notes[0] * notes[1] }
+    @banknotes.inject(0, :+)
   end
 
-  # FIXME: banknotes.values.all?(&:zero?) notes bigger then amount could be not used
-  def pick_out_notes(amount, banknotes)
-    if amount.zero? || banknotes.values.all?(&:zero?)
-      yield [amount, banknotes]
-    else
-      banknotes.key.select{ |nom| nom <= amount }.each do
-        b = Hash.new(banknotes)
-        b[nom] = b[nom] - 1
-        yield pick_out_notes(amount - nom, b)
-      end
-    end
+  def pick_banknotes(amount)
+    ab = @banknotes.select { |b| b <= amount } # quick and dirty reduce
+    combs = (1..ab.length).map { |i| ab.combination(i) } # list of enumerators
+    combs = combs.lazy.flat_map(&:lazy) # flat enumerator
+    combs.detect { |bs| bs.inject(0, :+) == amount } # voila
   end
 end

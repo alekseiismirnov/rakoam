@@ -54,11 +54,11 @@ class Atm
     elsif amount > cash
       format(self.class.not_enough_cash, cash: cash)
     else
-      givaway_bills = pick_banknotes(amount)
-      if givaway_bills.nil?
+      giveaway_bills = pick_banknotes(amount)
+      if giveaway_bills.nil?
          self.class.no_such_bills
       else
-        @banknotes -= givaway_bills
+        @banknotes -= giveaway_bills
         balance_set(balance_get - amount)
         balance
       end

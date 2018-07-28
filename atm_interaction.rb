@@ -10,7 +10,7 @@ atm_menu = <<MENU_END
   >
 MENU_END
 atm_asks_account = "Please Enter Your Account Number:\n> "
-atm_asks_password = "Enter Your Password:\n>  "
+atm_asks_password = "Enter Your Password:\n> "
 
 root = File.expand_path('.', __dir__)
 require File.join(root, %w[lib atm])
@@ -20,12 +20,12 @@ atm = Atm.new(config)
 loop do
   if atm.user_logged?
     print atm_menu
-    print atm.dispatch(gets)
+    print atm.dispatch(gets.to_i)
   else
     print atm_asks_account
     account = gets.to_i
     print atm_asks_password
-    passw = gets
-    atm.login(account, passw)
+    passw = gets.chomp
+    print atm.login(account, passw)
   end
 end

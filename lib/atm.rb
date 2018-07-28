@@ -83,4 +83,17 @@ class Atm
   def cash
     @config['banknotes'].inject(0) { |sum, notes| sum + notes[0] * notes[1] }
   end
+
+  # FIXME: banknotes.values.all?(&:zero?) notes bigger then amount could be not used
+  def pick_out_notes(amount, banknotes)
+    if amount.zero? || banknotes.values.all?(&:zero?)
+      yield [amount, banknotes]
+    else
+      banknotes.key.select{ |nom| nom <= amount }.each do
+        b = Hash.new(banknotes)
+        b[nom] = b[nom] - 1
+        yield pick_out_notes(amount - nom, b)
+      end
+    end
+  end
 end
